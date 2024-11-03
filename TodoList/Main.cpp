@@ -11,8 +11,9 @@ int main() {
 	InitWindow(screenWidth, screenHeight, "Todo List");
 	char inputText[MAX_INPUT_CHARS + 1] = "\0";
 	int letterCount = 0;
+	char displayText[MAX_INPUT_CHARS + 1] ="\0";
 
-	Rectangle textBox = { 10, 10, screenWidth - 150, 58 };
+	Rectangle textBox = { 10, 10, screenWidth - 150, 58 }; //width = 440
 	bool mouseOnText = false;
 
 	int framesCounter = 0;
@@ -21,7 +22,7 @@ int main() {
 
 
 	while (!WindowShouldClose()) {
-	
+
 
 		if (CheckCollisionPointRec(GetMousePosition(), textBox)) {
 			mouseOnText = true;
@@ -63,23 +64,38 @@ int main() {
 		ClearBackground(RAYWHITE);
 
 		DrawRectangleRec(textBox, LIGHTGRAY);
-		if (mouseOnText) DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
+		if (mouseOnText) DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, MAROON);
 		else DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
 
-		DrawText(inputText, (int)textBox.x + 5,(int)textBox.y + 8, 40, MAROON);
+		if (MeasureText(inputText, 40) > textBox.width && letterCount >= 22) {
+			for (int i = 0; i < letterCount;i++) {
+				displayText[i] = inputText[letterCount - 22 + i];
+			}
+			DrawText(displayText, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON); // Display last 23 chars
+		}
+		else {
+			DrawText(inputText, (int)textBox.x + 5,(int)textBox.y + 8, 40, MAROON);	
+		}
 		
 		//DrawText(TextFormat("Input char: %i/%i", letterCount, MAX_INPUT_CHARS), 315, 250, 20, DARKGRAY);
 
 		if (mouseOnText) {
 			if (letterCount < MAX_INPUT_CHARS) {
 				if ((framesCounter / 20) % 2 == 0) {
+					if (MeasureText(inputText, 40) > textBox.width) {
+						DrawText("|", (int)textBox.x + 8 + MeasureText(displayText, 40), (int)textBox.y + 12, 40, MAROON);
+					}
+					else {
 					DrawText("|", (int)textBox.x + 8 + MeasureText(inputText, 40), (int)textBox.y + 12, 40, MAROON);
+					}
 				}
 			}
 			else {
 				DrawText("You have exceeded the number of authorized chars..", 10, 78, 20, GRAY);
 			}
 		}
+		
+
 		EndDrawing();
 	}
 
