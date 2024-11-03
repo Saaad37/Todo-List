@@ -1,7 +1,10 @@
 #include <raylib.h>
+#include "Task.cpp"
 
 #define MAX_INPUT_CHARS 48
 
+Rectangle textBox;
+char inputText[MAX_INPUT_CHARS + 1] = "\0";
 
 int main() {
 
@@ -9,11 +12,15 @@ int main() {
 	const int screenHeight = 700;
 
 	InitWindow(screenWidth, screenHeight, "Todo List");
-	char inputText[MAX_INPUT_CHARS + 1] = "\0";
-	int letterCount = 0;
 	char displayText[MAX_INPUT_CHARS + 1] ="\0";
+	int letterCount = 0;
 
-	Rectangle textBox = { 10, 10, screenWidth - 150, 58 }; //width = 440
+	Task task = Task(0);
+
+
+	textBox = { 10, 10, screenWidth - 150, 58 }; //width = 440
+	Rectangle submitTaskButton = { screenWidth - 120, 10, 105, 58 };
+	bool mouseOnButton = false;
 	bool mouseOnText = false;
 
 	int framesCounter = 0;
@@ -67,9 +74,9 @@ int main() {
 		if (mouseOnText) DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, MAROON);
 		else DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
 
-		if (MeasureText(inputText, 40) > textBox.width && letterCount >= 22) {
+		if (MeasureText(inputText, 40) > textBox.width && letterCount >= 21) {
 			for (int i = 0; i < letterCount;i++) {
-				displayText[i] = inputText[letterCount - 22 + i];
+				displayText[i] = inputText[letterCount - 21 + i];
 			}
 			DrawText(displayText, (int)textBox.x + 5, (int)textBox.y + 8, 40, MAROON); // Display last 23 chars
 		}
@@ -82,7 +89,7 @@ int main() {
 		if (mouseOnText) {
 			if (letterCount < MAX_INPUT_CHARS) {
 				if ((framesCounter / 20) % 2 == 0) {
-					if (MeasureText(inputText, 40) > textBox.width) {
+					if (MeasureText(inputText, 40) > textBox.width - 10) {
 						DrawText("|", (int)textBox.x + 8 + MeasureText(displayText, 40), (int)textBox.y + 12, 40, MAROON);
 					}
 					else {
@@ -95,9 +102,33 @@ int main() {
 			}
 		}
 		
+		DrawRectangleRec(submitTaskButton, DARKGRAY);
+		DrawText("Submit Task", submitTaskButton.x + submitTaskButton.width/2 - 31, submitTaskButton.height / 2 + 5, 10, BLACK);
 
+		if (CheckCollisionPointRec(GetMousePosition(), submitTaskButton)) {
+			mouseOnButton = true;
+		}
+		else {
+			mouseOnButton = false;
+		}
+
+		if (mouseOnButton) {
+			DrawRectangleLines((int)submitTaskButton.x, (int)submitTaskButton.y, (int)submitTaskButton.width, (int)submitTaskButton.height, BLACK);
+			DrawRectangle((int)submitTaskButton.x, (int)submitTaskButton.y, (int)submitTaskButton.width, (int)submitTaskButton.height, WHITE);
+			DrawText("Submit Task", submitTaskButton.x + submitTaskButton.width / 2 - 31, submitTaskButton.height / 2 + 5, 10, BLACK);
+		}
+		else {
+			DrawRectangleRec(submitTaskButton, DARKGRAY);
+			DrawText("Submit Task", submitTaskButton.x + submitTaskButton.width / 2 - 31, submitTaskButton.height / 2 + 5, 10, BLACK);
+		}
+
+		if (mouseOnButton && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			task.Draw();
+		}
+		
 		EndDrawing();
 	}
+
 
 	CloseWindow();
 
