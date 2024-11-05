@@ -1,11 +1,9 @@
 #include "raylib.h"
-#include <vector>
 
 #define MAX_INPUT_CHARS 48
 
 Rectangle textBox;
 char inputText[MAX_INPUT_CHARS + 1] = "\0";
-std::vector<Task> tasks;
 
 
 class Task {
@@ -16,10 +14,6 @@ public:
 	Task(int taskID) {
 		frame = { 10, 80.0f + taskID * 10, textBox.width, textBox.height };
 		this->TaskID;
-	}
-
-	void addTask(Task task) {
-		tasks.push_back(task);
 	}
 
 	void Draw()
@@ -101,8 +95,6 @@ int main() {
 
 		if (mouseOnText) framesCounter++;
 		else framesCounter = 0;
-		if (tasks.empty()) showTasks = false;
-		else showTasks = true;
 		
 		BeginDrawing();
 		
@@ -157,7 +149,6 @@ int main() {
 		}
 		if (showTasks) {
 			task.Draw();
-			tasks.push_back(task);
 		}
 		else DrawText("No Tasks to display", 150,screenHeight/2, 40, MAROON);
 	
