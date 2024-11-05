@@ -4,12 +4,14 @@
 
 Rectangle textBox;
 char inputText[MAX_INPUT_CHARS + 1] = "\0";
+bool mouseOnButton = false;
 
 
 class Task {
 public:
 	bool Completed = false;
 	int TaskID = 0;
+	char taskText[MAX_INPUT_CHARS];
 
 	Task(int taskID) {
 		frame = { 10, 80.0f + taskID * 10, textBox.width, textBox.height };
@@ -19,7 +21,7 @@ public:
 	void Draw()
 	{
 		DrawRectangleRec(frame, LIGHTGRAY);
-		DrawText(inputText, frame.x + 10, frame.y + 10, 20, BLACK);
+		DrawText(taskText, frame.x + 10, frame.y + 10, 20, BLACK);
 	}
 private:
 	Rectangle frame;
@@ -40,12 +42,11 @@ int main() {
 
 	textBox = { 10, 10, screenWidth - 150, 58 }; //width = 440
 	Rectangle submitTaskButton = { screenWidth - 120, 10, 105, 58 };
-	bool mouseOnButton = false;
 	bool mouseOnText = false;
-	bool showTasks = false;
 
 	Task task = Task(0);
 
+	int numClicksSubmit = 0;
 	int framesCounter = 0;
 
 	SetTargetFPS(60);
@@ -95,6 +96,14 @@ int main() {
 
 		if (mouseOnText) framesCounter++;
 		else framesCounter = 0;
+
+		if (mouseOnButton && IsMouseButtonDown(MOUSE_BUTTON_LEFT) && inputText[0] != '\0') numClicksSubmit++;
+		if(numClicksSubmit == task.TaskID + 1) {
+			for (int i = 0;i < MAX_INPUT_CHARS;i++) {
+				task.taskText[i] = inputText[i];
+			}
+		}
+
 		
 		BeginDrawing();
 		
@@ -105,7 +114,7 @@ int main() {
 		if (mouseOnText) DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, MAROON);
 		else DrawRectangleLines((int)textBox.x, (int)textBox.y, (int)textBox.width, (int)textBox.height, DARKGRAY);
 
-		if (MeasureText(inputText, 40) > textBox.width && letterCount >= 20) {
+		if (MeasureText(inputText, 40) > textBox.width - 20 && letterCount >= 20) {
 			for (int i = 0; i < letterCount;i++) {
 				displayText[i] = inputText[letterCount - 21 + i];
 			}
@@ -147,14 +156,13 @@ int main() {
 			DrawText("Submit Task", submitTaskButton.x + submitTaskButton.width / 2 - 31, submitTaskButton.height / 2 + 5, 10, BLACK);
 			SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 		}
-		if (showTasks) {
+		if (numClicksSubmit >= 1) {
 			task.Draw();
 		}
 		else DrawText("No Tasks to display", 150,screenHeight/2, 40, MAROON);
 	
 		EndDrawing();
 	}
-
 
 	CloseWindow();
 
