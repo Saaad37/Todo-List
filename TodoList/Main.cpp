@@ -7,9 +7,11 @@ using namespace std;
 
 Rectangle textBox;
 char inputText[MAX_INPUT_CHARS + 1] = "\0";
+char displayText[MAX_INPUT_CHARS + 1] = "\0";
 bool mouseOnButton = false;
 list<int> tasks; 
-bool isInputEmpty = true;
+int letterCount;
+int framesCounter;
 
 bool searchFor(long taskID) {
 	for (int i : tasks) {
@@ -19,10 +21,16 @@ bool searchFor(long taskID) {
 }
 
 void resetInputText() {
-	if(!isInputEmpty){
-		for (int i = 0; i < MAX_INPUT_CHARS;i++) {
-			inputText[i] = '\0';
+	if (letterCount > 0) {
+		for (int i = 0; i < MAX_INPUT_CHARS + 1; i++){
+			if (inputText[i] != '\0') {
+				inputText[i] = '\0';
+				displayText[i] = '\0';
+			}
+			else i++;
 		}
+		letterCount = 0;
+		framesCounter = 0;
 	}
 }
 
@@ -35,12 +43,9 @@ public:
 	char taskText[MAX_INPUT_CHARS];
 
 	Task(int taskID) {
-		frame = { 10, 80.0f + taskID * 10, textBox.width, textBox.height };
+		frame = { 10, 100.0f + taskID * 10, textBox.width, textBox.height };
 		this->taskID;
 	}
-
-
-	
 
 	void CreateText() {
 			while (DoCreate) {
@@ -70,10 +75,9 @@ int main() {
 	const int screenHeight = 700;
 
 	InitWindow(screenWidth, screenHeight, "Todo List");
-	char displayText[MAX_INPUT_CHARS + 1] ="\0";
-	int letterCount = 0;
-
-
+	
+	letterCount = 0;
+	framesCounter = 0;
 
 	textBox = { 10, 10, screenWidth - 150, 58 }; //width = 440
 	Rectangle submitTaskButton = { screenWidth - 120, 10, 105, 58 };
@@ -86,10 +90,9 @@ int main() {
 
 
 	long numClicksSubmit = 0;
-	int framesCounter = 0;
+	
 
 	SetTargetFPS(60);
-
 
 	while (!WindowShouldClose()) {
 
@@ -115,7 +118,6 @@ int main() {
 
 			while (key > 0) {
 				if (key > 31 && key < 125 && letterCount < MAX_INPUT_CHARS) {
-					isInputEmpty = false;
 					inputText[letterCount] = (char)key;
 					inputText[letterCount + 1] = '\0';
 					letterCount++;
@@ -126,7 +128,6 @@ int main() {
 				letterCount--;
 				if (letterCount < 0) {
 					letterCount = 0;
-					isInputEmpty = true;
 				}
 				inputText[letterCount] = '\0';
 			}
@@ -139,6 +140,7 @@ int main() {
 		else framesCounter = 0;
 
 		if (mouseOnButton && IsMouseButtonDown(MOUSE_BUTTON_LEFT) && inputText[0] != '\0') numClicksSubmit++;
+		if (numClicksSubmit < 0 || numClicksSubmit > 4) numClicksSubmit = 0;
 		
 		BeginDrawing();
 		
